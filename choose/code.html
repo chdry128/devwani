@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>इष्टदेव चयन (Select Your Deity) - देववाणी</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              primary: '#D96510',
+              primaryHover: '#C25508',
+              primaryLight: '#FFF2E8',
+              accent: '#E67E22',
+              bg: '#FFF8F4',
+              surface: '#FFFFFF',
+              surfaceMuted: '#FDF3EC',
+              border: '#EED9CB',
+              textMain: '#2D231E',
+              textMuted: '#685950'
+            }
+          },
+          fontFamily: {
+            devanagari: ['"Noto Sans Devanagari"', 'sans-serif'],
+            rozha: ['"Rozha One"', 'serif']
+          },
+          boxShadow: {
+            'warm-sm': '0 2px 8px rgba(184, 110, 52, 0.08)',
+            'warm-md': '0 6px 18px rgba(184, 110, 52, 0.12)',
+            'warm-glow': '0 8px 24px rgba(217, 101, 16, 0.22)',
+            'active-card': '0 4px 16px rgba(217, 101, 16, 0.20)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    .deity-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .deity-card:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="bg-[#FFF8F4] text-[#2D231E] min-h-screen flex flex-col justify-between antialiased">
+  <!-- Outer Mobile Container Frame -->
+  <div class="max-w-md mx-auto w-full min-h-screen flex flex-col justify-between bg-[#FFF8F4] relative px-4 pt-5 pb-6">
+    
+    <!-- Top Decorative Header & Stepper / Title Area -->
+    <header class="w-full text-center mb-5">
+      <!-- Auspicious Sacred Om & Brand Badge -->
+      <div class="inline-flex items-center justify-center gap-2 bg-[#FFF1E8] border border-[#F3DFC7] px-4 py-1.5 rounded-full mb-3.5 shadow-sm">
+        <img src="https://lh3.googleusercontent.com/aida/AEtjO1U3Z4EOR8a02F5DXMa81tm-zBr-dhCf0ZzL1Yz0G3kJpLze0RiaaJYnbPG034OCJURU_Yw_0sPwcXXVfXouKx51Zy2pYLN9ilqt7iO8SgNBZf4J6-vWIyqX0nyc6P9UKiIuzF_JB2WMnVwPnr5MtnU3wnWcRfOS5dmSY26FBX6Gz_U75RyD9VVaFqaqKs8c9C3agm4zedVgQq_i3iJxs7JYjxGVcjwqvCyVfldN6Ig18UKzGUHhTY5bec8" alt="ॐ" class="w-5 h-5 object-contain" />
+        <span class="text-sm font-bold tracking-wide text-[#A64B0A]">देववाणी स्वागतम</span>
+      </div>
+
+      <!-- Main Headline - Large Print for Elderly Devotees -->
+      <h1 class="text-2xl sm:text-[26px] font-extrabold text-[#241A14] leading-snug tracking-tight mb-2">
+        आप किस देवता की उपासना करते हैं?
+      </h1>
+
+      <!-- Clear, High-Contrast Subtitle -->
+      <p class="text-base text-[#6B5A50] font-medium leading-relaxed bg-[#FFF3EA] inline-block px-4 py-1 rounded-full border border-[#F5E2D3]">
+        आप <span class="font-bold text-[#A64B0A]">१ या २ देवताओं</span> को चुन सकते हैं
+      </p>
+
+      <!-- Selection Counter Indicator -->
+      <div class="mt-2 text-xs font-semibold text-[#8C7667]">
+        चयनित देवता: <span id="selected-count-badge" class="text-[#D96510] font-bold text-sm">२</span> / २
+      </div>
+    </header>
+
+    <!-- Main Content: 2-Column Deity Grid -->
+    <main class="flex-1">
+      <div class="grid grid-cols-2 gap-3.5 sm:gap-4" id="deity-grid">
+
+        <!-- 1. हनुमान जी (Selected State Example) -->
+        <div class="deity-card group relative bg-[#FFF3E8] border-2 border-[#D96510] rounded-2xl p-2.5 shadow-active-card cursor-pointer flex flex-col items-center text-center ring-2 ring-[#D96510]/30"
+             onclick="toggleDeity(this, 'हनुमान जी')" data-deity="हनुमान जी" data-selected="true">
+          <!-- Selection Check Badge -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-[#D96510] text-white flex items-center justify-center shadow-md z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <!-- Image Wrapper with soft circular/rounded framing -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#E9CCA8] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1V_hW33d4pDxEFzbgv2t9J6iv8dc1bs3-elLrM-yvBUAHjkvtCnQabX5pdEoFlcB6T80NW3o7YOVdXYld3klNw2WzvbuMcJpYQqcKF2Jdud7AykJ_VYGqIIMbrRhV5AP6KgIXtdSsuXgKpg6bvgN8tQjvcIRJJR-DmXfGcV4kVeQc2DuuTDMKD5LhJok_XFJ8BekzrTIJzVeH-ct7scHQ_PpsBdwJ-7dHohWotB99ZKyQnzO29BNcsRsXhv" alt="श्री हनुमान जी" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name in Bold High-Contrast Devanagari -->
+          <span class="text-lg font-bold text-[#A64B0A] leading-tight pb-1">
+            हनुमान जी
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">संकट मोचन</span>
+        </div>
+
+        <!-- 2. श्री गणेश (Selected State Example) -->
+        <div class="deity-card group relative bg-[#FFF3E8] border-2 border-[#D96510] rounded-2xl p-2.5 shadow-active-card cursor-pointer flex flex-col items-center text-center ring-2 ring-[#D96510]/30"
+             onclick="toggleDeity(this, 'श्री गणेश')" data-deity="श्री गणेश" data-selected="true">
+          <!-- Selection Check Badge -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-[#D96510] text-white flex items-center justify-center shadow-md z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <!-- Image Wrapper -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#E9CCA8] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1ULKArqisXqaSpzlKOneVil0IC_9OtM769JXzZVyxmWi1X42MSw9x-6amVjGykvp70lbWRb3-MvuUyIygu_4Ljmxf9SxCdF0hlWw_gakBn0AoD-saKaVfCJ-PG8Qe6udOu0r8_vBAU7oj7zJ-xrCla4_rJKpwGlCL6pidpy2AdnfhQ9jZFohIj-p5O7U3jyZzk22IpPlJhkfP9AHpBhv1oliYNSBmPFOy49G5c_mxt_E0m8H9E_S6kQ__gc" alt="श्री गणेश जी" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name -->
+          <span class="text-lg font-bold text-[#A64B0A] leading-tight pb-1">
+            श्री गणेश
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">विघ्नहर्ता</span>
+        </div>
+
+        <!-- 3. भगवान शिव (Default Unselected State) -->
+        <div class="deity-card group relative bg-white border border-[#EAD5C5] rounded-2xl p-2.5 shadow-warm-sm hover:border-[#D96510]/60 cursor-pointer flex flex-col items-center text-center"
+             onclick="toggleDeity(this, 'भगवान शिव')" data-deity="भगवान शिव" data-selected="false">
+          <!-- Selection Circle Placeholder (Empty) -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border-2 border-[#D0BFB2] flex items-center justify-center shadow-sm z-10 opacity-70 group-hover:opacity-100">
+            <div class="w-2 h-2 rounded-full bg-transparent"></div>
+          </div>
+          <!-- Image Wrapper -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#EFE2D6] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF7LDgceBF0OKlc6Z_KJjaOX8uaWocVwLqRP-Qmh45zwr6ZaahkAOpq_dNZlI9zvYX7AJPUgAJqOCw_bduKOE2UIn78VMnyKEhn4nwBsevfVqg09buUHpoqXbTShJNAyl3sQiw0Iz4OPf1zpz0nH2g9MX4oYnpZWkJE7rufZwejNUJIl2MSQrs4fp9uPfiSyuVMHWKeNtfY5GLcmhvPBejhSuiBq3bK8iIQYAH_iVn5ZLZ68gtwDzqZw" alt="भगवान शिव" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name -->
+          <span class="text-lg font-bold text-[#2E231C] leading-tight pb-1">
+            भगवान शिव
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">महादेव</span>
+        </div>
+
+        <!-- 4. माता दुर्गा (Default Unselected State) -->
+        <div class="deity-card group relative bg-white border border-[#EAD5C5] rounded-2xl p-2.5 shadow-warm-sm hover:border-[#D96510]/60 cursor-pointer flex flex-col items-center text-center"
+             onclick="toggleDeity(this, 'माता दुर्गा')" data-deity="माता दुर्गा" data-selected="false">
+          <!-- Selection Circle Placeholder (Empty) -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border-2 border-[#D0BFB2] flex items-center justify-center shadow-sm z-10 opacity-70 group-hover:opacity-100">
+            <div class="w-2 h-2 rounded-full bg-transparent"></div>
+          </div>
+          <!-- Image Wrapper -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#EFE2D6] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsLlyPpwBqZHxD4cp_DX-T4ab7OyJsjkJgN6zkHr2od_C7V4XpD7nBbpr4GSILHj0lpGrsorUoPORE1rd-B_EPBioIIU9xe976WRm8WXfNrnkshuHXvdus9qyqzDjNXQtKnww_NjTtzboS4BCUzHlwQYn082MY_2iWyM6dqaRmW3v3RTnuH1-wLtWXmoe7-wYWD9RxdpavIgSnwWbBWzcAWe_dIHhbfDhwbz8U8s5M0m1cWAgUTqnwBg" alt="माता दुर्गा" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name -->
+          <span class="text-lg font-bold text-[#2E231C] leading-tight pb-1">
+            माता दुर्गा
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">शक्ति स्वरूपा</span>
+        </div>
+
+        <!-- 5. श्री कृष्ण (Default Unselected State) -->
+        <div class="deity-card group relative bg-white border border-[#EAD5C5] rounded-2xl p-2.5 shadow-warm-sm hover:border-[#D96510]/60 cursor-pointer flex flex-col items-center text-center"
+             onclick="toggleDeity(this, 'श्री कृष्ण')" data-deity="श्री कृष्ण" data-selected="false">
+          <!-- Selection Circle Placeholder (Empty) -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border-2 border-[#D0BFB2] flex items-center justify-center shadow-sm z-10 opacity-70 group-hover:opacity-100">
+            <div class="w-2 h-2 rounded-full bg-transparent"></div>
+          </div>
+          <!-- Image Wrapper -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#EFE2D6] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqS3HzWQ6DMcX-1Quj5aBxU9Vb_vuAaMoMmxEa9HgrTwcFKNqBF2gzAxlcyLoAfytbrdAfO01iT9qlE_2QRtmlT6_84OQOHAkVGr0MQCviqzd7yQ6gGvYi1ahhderhYVRcBoPP17K3pV7BxnT6hvTQOiyczN-BuZE9tO0ucpiVNZTQ_dI72EJigIKIBOgCMqqfcYh_cEdFHmHO2z2sovn1kTJ4-ysJChsjI4IM5mtt4eD-Y7ubUvufNA" alt="श्री कृष्ण" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name -->
+          <span class="text-lg font-bold text-[#2E231C] leading-tight pb-1">
+            श्री कृष्ण
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">मुरलीधर</span>
+        </div>
+
+        <!-- 6. भगवान राम (Default Unselected State) -->
+        <div class="deity-card group relative bg-white border border-[#EAD5C5] rounded-2xl p-2.5 shadow-warm-sm hover:border-[#D96510]/60 cursor-pointer flex flex-col items-center text-center"
+             onclick="toggleDeity(this, 'भगवान राम')" data-deity="भगवान राम" data-selected="false">
+          <!-- Selection Circle Placeholder (Empty) -->
+          <div class="badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border-2 border-[#D0BFB2] flex items-center justify-center shadow-sm z-10 opacity-70 group-hover:opacity-100">
+            <div class="w-2 h-2 rounded-full bg-transparent"></div>
+          </div>
+          <!-- Image Wrapper -->
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-[#F8EDE3] border border-[#EFE2D6] shadow-inner mb-2.5">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt81L1GsUpI_LwxlyliZmiJedOBruga7R6ssU1jcPkv2E4DB5tEIM_yjPykoXLUMTwXB8JXxxa71i70c8XsLabD-iQGclc3tc53gJEZyIXeQVxMpMgFtLQYD_15NuSiTZbftObYG2MIP4qAlYkabZqvM8a8iosx95LCjDrhZLZa3ytTh8XrWYDOz3UEX1v3fMDV4kN7cBGH0U6Fno8JX5z19VXXbwuFRp31IPcDAiHYD1M-6WTg5bP5g" alt="भगवान राम" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+          </div>
+          <!-- Deity Name -->
+          <span class="text-lg font-bold text-[#2E231C] leading-tight pb-1">
+            भगवान राम
+          </span>
+          <span class="text-xs text-[#7A6150] font-medium pb-0.5">मर्यादा पुरुषोत्तम</span>
+        </div>
+
+      </div>
+
+      <!-- Helpful Elder-Friendly Note -->
+      <div class="mt-4 text-center">
+        <p class="text-xs text-[#7C6A5E] flex items-center justify-center gap-1.5 font-medium">
+          <svg class="w-4 h-4 text-[#D96510]" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          चिंता न करें, आप इसे बाद में सेटिंग्स से कभी भी बदल सकते हैं
+        </p>
+      </div>
+    </main>
+
+    <!-- Sticky / Prominent Bottom Action Bar -->
+    <footer class="w-full pt-4 mt-2">
+      <!-- Big, Full-Width Saffron Action Button (60px high for older fingers) -->
+      <button id="submit-btn" 
+              class="w-full h-15 py-4 px-6 bg-gradient-to-r from-[#E0670F] to-[#CC5805] hover:from-[#C95804] hover:to-[#BA4E02] text-white rounded-2xl font-bold text-xl tracking-wide shadow-warm-glow flex items-center justify-center gap-3 active:scale-[0.99] transition-all">
+        <span>आगे बढ़ें</span>
+        <svg class="w-6 h-6 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
+
+      <!-- Skip / Choose Later subtle text option -->
+      <div class="text-center mt-3">
+        <button class="text-sm font-semibold text-[#8C7667] hover:text-[#5B483B] underline underline-offset-4 py-1">
+          बाद में चुनें (आगे बढ़ें)
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Interactive JavaScript for Elder-friendly 2-choice Selection -->
+  <script>
+    let selectedDeities = ['हनुमान जी', 'श्री गणेश'];
+
+    function updateBadgeCount() {
+      const countSpan = document.getElementById('selected-count-badge');
+      if (countSpan) {
+        countSpan.textContent = selectedDeities.length;
+      }
+      const submitBtn = document.getElementById('submit-btn');
+      if (selectedDeities.length === 0) {
+        submitBtn.classList.add('opacity-60');
+      } else {
+        submitBtn.classList.remove('opacity-60');
+      }
+    }
+
+    function toggleDeity(cardEl, deityName) {
+      const isSelected = cardEl.getAttribute('data-selected') === 'true';
+
+      if (isSelected) {
+        // Deselect
+        cardEl.setAttribute('data-selected', 'false');
+        cardEl.className = "deity-card group relative bg-white border border-[#EAD5C5] rounded-2xl p-2.5 shadow-warm-sm hover:border-[#D96510]/60 cursor-pointer flex flex-col items-center text-center";
+        
+        // Update badge check
+        const badge = cardEl.querySelector('.badge-check');
+        badge.className = "badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border-2 border-[#D0BFB2] flex items-center justify-center shadow-sm z-10 opacity-70 group-hover:opacity-100";
+        badge.innerHTML = '<div class="w-2 h-2 rounded-full bg-transparent"></div>';
+
+        // Name color
+        const nameSpan = cardEl.querySelector('span.text-lg');
+        nameSpan.className = "text-lg font-bold text-[#2E231C] leading-tight pb-1";
+
+        selectedDeities = selectedDeities.filter(d => d !== deityName);
+      } else {
+        // Enforce maximum 2 deities limit
+        if (selectedDeities.length >= 2) {
+          // Alert or feedback for elderly: Replace oldest or show soft note
+          alert("आप अधिकतम २ देवताओं को ही चुन सकते हैं। कृपया पहले से चुने किसी देवता को हटाकर पुनः चुनें।");
+          return;
+        }
+
+        // Select
+        cardEl.setAttribute('data-selected', 'true');
+        cardEl.className = "deity-card group relative bg-[#FFF3E8] border-2 border-[#D96510] rounded-2xl p-2.5 shadow-active-card cursor-pointer flex flex-col items-center text-center ring-2 ring-[#D96510]/30";
+        
+        // Update badge check
+        const badge = cardEl.querySelector('.badge-check');
+        badge.className = "badge-check absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-[#D96510] text-white flex items-center justify-center shadow-md z-10";
+        badge.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>';
+
+        // Name color
+        const nameSpan = cardEl.querySelector('span.text-lg');
+        nameSpan.className = "text-lg font-bold text-[#A64B0A] leading-tight pb-1";
+
+        selectedDeities.push(deityName);
+      }
+
+      updateBadgeCount();
+    }
+
+    updateBadgeCount();
+  </script>
+</body>
+</html>

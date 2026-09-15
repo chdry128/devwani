@@ -18,6 +18,8 @@ import 'package:devavani/services/audio_player_service.dart';
 import 'package:devavani/services/notification_service.dart';
 import 'package:devavani/services/storage_service.dart';
 import 'package:devavani/widgets/aarti_lyrics_scroller.dart';
+import 'package:tithi_engine/data/all.dart';
+import 'package:tithi_engine/tithi_engine.dart';
 
 /// In-memory asset bundle for testing lyrics loading and fallback resilience
 class TestAssetBundle extends CachingAssetBundle {
@@ -60,9 +62,7 @@ Widget createAartiTestApp({
         create: (_) => SettingsProvider(storage, notifications),
       ),
     ],
-    child: MaterialApp(
-      home: child,
-    ),
+    child: MaterialApp(home: child),
   );
 }
 
@@ -70,28 +70,37 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Aaj Ki Aarti Service & Priority Selection Tests', () {
-    test('Catalog contains all 6 deity aartis with valid audio and .txt pairs', () {
-      final aartis = AajKiAartiService.allAartis;
-      expect(aartis.length, 6);
+    test(
+      'Catalog contains all 6 deity aartis with valid audio and .txt pairs',
+      () {
+        final aartis = AajKiAartiService.allAartis;
+        expect(aartis.length, 6);
 
-      for (final aarti in aartis) {
-        expect(aarti.id, isNotEmpty);
-        expect(aarti.audioPath, startsWith('assets/audio/aarti/'));
-        expect(aarti.audioPath, endsWith('.mp3'));
-        expect(aarti.lyricsPath, startsWith('assets/audio/aarti/'));
-        expect(aarti.lyricsPath, endsWith('.txt'));
-        expect(aarti.title.hi, isNotEmpty);
-        expect(aarti.title.ne, isNotEmpty);
-        expect(aarti.title.en, isNotEmpty);
-        expect(aarti.relatedGodId, isNotEmpty);
-      }
-    });
+        for (final aarti in aartis) {
+          expect(aarti.id, isNotEmpty);
+          expect(aarti.audioPath, startsWith('assets/audio/aarti/'));
+          expect(aarti.audioPath, endsWith('.mp3'));
+          expect(aarti.lyricsPath, startsWith('assets/audio/aarti/'));
+          expect(aarti.lyricsPath, endsWith('.txt'));
+          expect(aarti.title.hi, isNotEmpty);
+          expect(aarti.title.ne, isNotEmpty);
+          expect(aarti.title.en, isNotEmpty);
+          expect(aarti.relatedGodId, isNotEmpty);
+        }
+      },
+    );
 
     test('Priority 1: Festival today takes highest precedence', () {
-      final festival = AppFestivals.mahashivratri;
-      final festivalDate = DateTime(2026, festival.approximateMonth, festival.approximateDay);
+      final engine = Panchang([registerAllCities]);
+      final festival = festivals.firstWhere(
+        (festival) => festival.id == 'maha_shivaratri',
+      );
+      final city = City.tryOf('Kathmandu') ?? defaultCity;
+      final festivalDate = engine.dateFor(festival, 2026, city)!.date;
       final result = AajKiAartiService.selectTodaysAarti(
-        preferredGodIds: ['hanuman'], // User preferred Hanuman, but festival overrides!
+        preferredGodIds: [
+          'hanuman',
+        ], // User preferred Hanuman, but festival overrides!
         date: festivalDate,
       );
 
@@ -165,12 +174,34 @@ void main() {
     });
 
     test('Audio file name God detector identifies deities from keywords', () {
-      expect(AajKiAartiService.detectGodFromFileName('hanuman_chalisa.mp3'), 'hanuman');
-      expect(AajKiAartiService.detectGodFromFileName('HanumanJiKIAarti (1).mp3'), 'hanuman');
-      expect(AajKiAartiService.detectGodFromFileName('OmJaiShivOmkaraShivAarti1.mp3'), 'shiva');
-      expect(AajKiAartiService.detectGodFromFileName('Jai-Ganesh-Jai-Ganesh-Deva-Ganes.mp3'), 'ganesha');
-      expect(AajKiAartiService.detectGodFromFileName('Aarti-Kunj-Bihari-Ki.mp3'), 'krishna');
-      expect(AajKiAartiService.detectGodFromFileName('OM-JAI-JAGDISH-HARE.mp3'), 'ram');
+      expect(
+        AajKiAartiService.detectGodFromFileName('hanuman_chalisa.mp3'),
+        'hanuman',
+      );
+      expect(
+        AajKiAartiService.detectGodFromFileName('HanumanJiKIAarti (1).mp3'),
+        'hanuman',
+      );
+      expect(
+        AajKiAartiService.detectGodFromFileName(
+          'OmJaiShivOmkaraShivAarti1.mp3',
+        ),
+        'shiva',
+      );
+      expect(
+        AajKiAartiService.detectGodFromFileName(
+          'Jai-Ganesh-Jai-Ganesh-Deva-Ganes.mp3',
+        ),
+        'ganesha',
+      );
+      expect(
+        AajKiAartiService.detectGodFromFileName('Aarti-Kunj-Bihari-Ki.mp3'),
+        'krishna',
+      );
+      expect(
+        AajKiAartiService.detectGodFromFileName('OM-JAI-JAGDISH-HARE.mp3'),
+        'ram',
+      );
     });
   });
 
@@ -181,7 +212,8 @@ void main() {
 
     test('Loads and caches lyrics successfully from asset bundle', () async {
       final testBundle = TestAssetBundle({
-        'assets/audio/aarti/sample.txt': 'जय हनुमान ज्ञान गुन सागर\n\nजय कपीस तिहुँ लोक उजागर',
+        'assets/audio/aarti/sample.txt':
+            'जय हनुमान ज्ञान गुन सागर\n\nजय कपीस तिहुँ लोक उजागर',
       });
 
       final lyrics = await AajKiAartiService.loadLyrics(
@@ -193,25 +225,32 @@ void main() {
       expect(lyrics, contains('जय कपीस तिहुँ लोक उजागर'));
 
       // Subsequent call retrieves from memory cache
-      final cached = await AajKiAartiService.loadLyrics('assets/audio/aarti/sample.txt');
+      final cached = await AajKiAartiService.loadLyrics(
+        'assets/audio/aarti/sample.txt',
+      );
       expect(cached, lyrics);
     });
 
-    test('Gracefully returns friendly message when lyrics file is missing', () async {
-      final testBundle = TestAssetBundle({});
+    test(
+      'Gracefully returns friendly message when lyrics file is missing',
+      () async {
+        final testBundle = TestAssetBundle({});
 
-      final lyrics = await AajKiAartiService.loadLyrics(
-        'assets/audio/aarti/missing_file.txt',
-        bundle: testBundle,
-      );
+        final lyrics = await AajKiAartiService.loadLyrics(
+          'assets/audio/aarti/missing_file.txt',
+          bundle: testBundle,
+        );
 
-      expect(lyrics, contains('आरती के पावन बोल शीघ्र ही उपलब्ध होंगे'));
-      expect(lyrics, contains('हरि ॐ तत्सत्'));
-    });
+        expect(lyrics, contains('आरती के पावन बोल शीघ्र ही उपलब्ध होंगे'));
+        expect(lyrics, contains('हरि ॐ तत्सत्'));
+      },
+    );
   });
 
   group('AartiLyricsScroller Widget Tests', () {
-    testWidgets('Renders lyrics, auto-scroll status, and font zoom buttons', (tester) async {
+    testWidgets('Renders lyrics, auto-scroll status, and font zoom buttons', (
+      tester,
+    ) async {
       int fontStage = 1;
 
       await tester.pumpWidget(
@@ -248,7 +287,9 @@ void main() {
       expect(fontStage, 1);
     });
 
-    testWidgets('Shows loading indicator when lyrics are loading', (tester) async {
+    testWidgets('Shows loading indicator when lyrics are loading', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -284,48 +325,51 @@ void main() {
       notifications = NotificationService();
     });
 
-    testWidgets('Renders complete Aarti Screen with big controls and selection sheet', (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Renders complete Aarti Screen with big controls and selection sheet',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(
-        createAartiTestApp(
-          child: const AartiScreen(),
-          storage: storage,
-          audio: audio,
-          notifications: notifications,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createAartiTestApp(
+            child: const AartiScreen(),
+            storage: storage,
+            audio: audio,
+            notifications: notifications,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Check title and deity card
-      expect(find.text('श्री हनुमान चालीसा'), findsOneWidget);
-      expect(find.text('संकट मोचन कृपा • महाबलशाली'), findsOneWidget);
+        // Check title and deity card
+        expect(find.text('श्री हनुमान चालीसा'), findsOneWidget);
+        expect(find.text('संकट मोचन कृपा • महाबलशाली'), findsOneWidget);
 
-      // Check big media controls
-      expect(find.byIcon(Icons.replay_10_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.forward_10_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
-      expect(find.text('आरती दोहराएं (Loop)'), findsOneWidget);
+        // Check big media controls
+        expect(find.byIcon(Icons.replay_10_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.forward_10_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+        expect(find.text('आरती दोहराएं (Loop)'), findsOneWidget);
 
-      // Open Aarti selection bottom sheet
-      await tester.tap(find.byIcon(Icons.queue_music_rounded));
-      await tester.pumpAndSettle();
+        // Open Aarti selection bottom sheet
+        await tester.tap(find.byIcon(Icons.queue_music_rounded));
+        await tester.pumpAndSettle();
 
-      expect(find.text('सभी पवित्र आरतियां'), findsOneWidget);
-      expect(find.text('जय गणेश जय गणेश देवा'), findsOneWidget);
-      expect(find.text('ॐ जय शिव ओंकारा'), findsOneWidget);
-      expect(find.text('आरती कुंजबिहारी की'), findsOneWidget);
+        expect(find.text('सभी पवित्र आरतियां'), findsOneWidget);
+        expect(find.text('जय गणेश जय गणेश देवा'), findsOneWidget);
+        expect(find.text('ॐ जय शिव ओंकारा'), findsOneWidget);
+        expect(find.text('आरती कुंजबिहारी की'), findsOneWidget);
 
-      // Select Lord Shiva Aarti from the sheet
-      await tester.tap(find.text('ॐ जय शिव ओंकारा'));
-      await tester.pumpAndSettle();
+        // Select Lord Shiva Aarti from the sheet
+        await tester.tap(find.text('ॐ जय शिव ओंकारा'));
+        await tester.pumpAndSettle();
 
-      // Screen now displays Lord Shiva Aarti!
-      expect(find.text('ॐ जय शिव ओंकारा'), findsOneWidget);
-      expect(find.text('महादेव शिव शंकर आरती'), findsOneWidget);
-    });
+        // Screen now displays Lord Shiva Aarti!
+        expect(find.text('ॐ जय शिव ओंकारा'), findsOneWidget);
+        expect(find.text('महादेव शिव शंकर आरती'), findsOneWidget);
+      },
+    );
   });
 }

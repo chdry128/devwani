@@ -12,10 +12,27 @@
 
 import '../models/festival_model.dart';
 import '../models/god_model.dart';
+import 'package:tithi_engine/data/all.dart';
+import 'package:tithi_engine/tithi_engine.dart';
 
 /// All major Hindu festivals recognized by the app.
 class AppFestivals {
   AppFestivals._();
+
+  static final Panchang _panchang = Panchang([registerAllCities]);
+  static final City _festivalCity = City.tryOf('Kathmandu') ?? defaultCity;
+
+  /// Maps the app's display metadata to the engine's exact lunar festivals.
+  /// Janmashtami uses the Smarta observance (nishita/midnight), which is the
+  /// traditional general-purpose choice for this app.
+  static const Map<String, List<String>> _engineFestivalIds = {
+    'mahashivratri': ['maha_shivaratri'],
+    'ram_navami': ['ram_navami'],
+    'ganesh_chaturthi': ['ganesh_chaturthi'],
+    'navratri': ['sharad_navratri', 'durga_ashtami', 'maha_navami'],
+    'janmashtami': ['janmashtami_smarta', 'janmashtami_iskcon'],
+    'diwali': ['diwali'],
+  };
 
   // ─────────────────────────────────────────────────────────────────────────
   // Individual Festival definitions
@@ -77,11 +94,7 @@ class AppFestivals {
 
   static const FestivalModel navratri = FestivalModel(
     id: 'navratri',
-    name: LocalizedText(
-      hi: 'नवरात्रि',
-      ne: 'नवरात्रि',
-      en: 'Navratri',
-    ),
+    name: LocalizedText(hi: 'नवरात्रि', ne: 'नवरात्रि', en: 'Navratri'),
     description: LocalizedText(
       hi: 'माँ दुर्गा की नौ रातों का पावन पर्व',
       ne: 'माँ दुर्गाको नौ रातको पावन पर्व',
@@ -95,11 +108,7 @@ class AppFestivals {
 
   static const FestivalModel janmashtami = FestivalModel(
     id: 'janmashtami',
-    name: LocalizedText(
-      hi: 'जन्माष्टमी',
-      ne: 'जन्माष्टमी',
-      en: 'Janmashtami',
-    ),
+    name: LocalizedText(hi: 'जन्माष्टमी', ne: 'जन्माष्टमी', en: 'Janmashtami'),
     description: LocalizedText(
       hi: 'भगवान श्री कृष्ण के जन्मोत्सव का पावन दिन',
       ne: 'भगवान श्री कृष्णको जन्मोत्सवको पावन दिन',
@@ -113,11 +122,7 @@ class AppFestivals {
 
   static const FestivalModel ramNavami = FestivalModel(
     id: 'ram_navami',
-    name: LocalizedText(
-      hi: 'रामनवमी',
-      ne: 'रामनवमी',
-      en: 'Ram Navami',
-    ),
+    name: LocalizedText(hi: 'रामनवमी', ne: 'रामनवमी', en: 'Ram Navami'),
     description: LocalizedText(
       hi: 'प्रभु श्री राम के जन्मोत्सव का पावन दिन',
       ne: 'प्रभु श्री रामको जन्मोत्सवको पावन दिन',
@@ -131,11 +136,7 @@ class AppFestivals {
 
   static const FestivalModel diwali = FestivalModel(
     id: 'diwali',
-    name: LocalizedText(
-      hi: 'दीपावली',
-      ne: 'दीपावली',
-      en: 'Diwali',
-    ),
+    name: LocalizedText(hi: 'दीपावली', ne: 'दीपावली', en: 'Diwali'),
     description: LocalizedText(
       hi: 'दीपों का त्योहार — श्री राम के अयोध्या आगमन का उत्सव',
       ne: 'दीपहरूको त्यौहार — श्री रामको अयोध्या आगमनको उत्सव',
@@ -187,7 +188,28 @@ class AppFestivals {
   /// For production, replace this with a year-specific date lookup.
   static FestivalModel? getActiveFestival([DateTime? date]) {
     final checkDate = date ?? DateTime.now();
+
+    // Hindu festival dates move with the lunar calendar. Resolve them from
+    // the astronomy engine instead of the approximate metadata dates below.
     for (final festival in allFestivals) {
+      final engineIds = _engineFestivalIds[festival.id];
+      if (engineIds == null) continue;
+
+      for (final engineFestival in festivals) {
+        if (!engineIds.contains(engineFestival.id)) continue;
+        final occurrence = _panchang.dateFor(
+          engineFestival,
+          checkDate.year,
+          _festivalCity,
+        );
+        if (_sameCalendarDate(occurrence?.date, checkDate)) return festival;
+      }
+    }
+
+    // Keep the offline metadata only for festivals that are not represented by
+    // the current engine release, such as Hanuman Jayanti.
+    for (final festival in allFestivals) {
+      if (_engineFestivalIds.containsKey(festival.id)) continue;
       if (festival.isOnDate(checkDate)) {
         return festival;
       }
@@ -195,11 +217,16 @@ class AppFestivals {
     return null;
   }
 
+  static bool _sameCalendarDate(DateTime? left, DateTime right) {
+    return left != null &&
+        left.year == right.year &&
+        left.month == right.month &&
+        left.day == right.day;
+  }
+
   /// Returns all festivals related to a specific God.
   static List<FestivalModel> getFestivalsForGod(String godId) {
-    return allFestivals
-        .where((f) => f.relatedGodId == godId)
-        .toList();
+    return allFestivals.where((f) => f.relatedGodId == godId).toList();
   }
 
   /// Quick lookup by ID.

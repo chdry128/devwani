@@ -5,7 +5,7 @@ import '../services/panchang_service.dart';
 /// Supplies simplified, accurate Panchang data for senior users.
 /// Integrates [PanchangService] with Kathmandu default and Delhi option.
 class PanchangProvider extends ChangeNotifier {
-  PanchangData _data = PanchangData.defaultToday;
+  late PanchangData _data;
   String _currentCity = PanchangService.defaultCityName;
   String _currentLang = 'hi';
 
@@ -16,6 +16,11 @@ class PanchangProvider extends ChangeNotifier {
   PanchangProvider({String? initialCity, String? initialLang}) {
     if (initialCity != null) _currentCity = initialCity;
     if (initialLang != null) _currentLang = initialLang;
+
+    _data = PanchangData.fromNew(
+      PanchangService.getToday(city: _currentCity, lang: _currentLang),
+      lang: _currentLang,
+    );
   }
 
   /// Refreshes panchang using PanchangService for current city and language

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -15,65 +17,127 @@ import 'services/audio_player_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const DevavaniBootstrap());
+}
 
-  // Initialize Offline Storage
-  final storageService = await StorageService.init();
+class DevavaniBootstrap extends StatefulWidget {
+  const DevavaniBootstrap({super.key});
 
-  // Initialize Audio
-  final audioPlayerService = AudioPlayerService();
+  @override
+  State<DevavaniBootstrap> createState() => _DevavaniBootstrapState();
+}
 
-  // Initialize Local Notifications safely
-  final notificationService = NotificationService();
-  try {
-    await notificationService.init();
-  } catch (e) {
-    debugPrint('NotificationService initialization skipped: $e');
+class _DevavaniBootstrapState extends State<DevavaniBootstrap> {
+  late final Future<StorageService> _storageFuture;
+  late final AudioPlayerService _audioPlayerService;
+  late final NotificationService _notificationService;
+  bool _backgroundInitializationStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _storageFuture = StorageService.init();
+    _audioPlayerService = AudioPlayerService();
+    _notificationService = NotificationService();
   }
 
-  // Initialize Google Mobile Ads safely (graceful fallback on desktop & offline)
-  try {
-    if (!kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS)) {
-      await MobileAds.instance.initialize();
+  void _startBackgroundInitialization() {
+    if (_backgroundInitializationStarted) return;
+    _backgroundInitializationStarted = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_initializeNotifications());
+      unawaited(_initializeAds());
+    });
+  }
+
+  Future<void> _initializeNotifications() async {
+    try {
+      await _notificationService.init();
+    } catch (e) {
+      debugPrint('NotificationService initialization skipped: $e');
     }
-  } catch (e) {
-    debugPrint('Google Mobile Ads initialization skipped: $e');
   }
 
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<StorageService>.value(value: storageService),
-        Provider<AudioPlayerService>.value(value: audioPlayerService),
-        Provider<NotificationService>.value(value: notificationService),
-        ChangeNotifierProvider<JaapProvider>(
-          create: (_) => JaapProvider(storageService, audioPlayerService),
-        ),
-        ChangeNotifierProvider<AudioProvider>(
-          create: (_) => AudioProvider(audioPlayerService, storageService),
-        ),
-        ChangeNotifierProvider<PanchangProvider>(
-          create: (_) => PanchangProvider(
-            initialLang: storageService.getLanguage(),
+  Future<void> _initializeAds() async {
+    try {
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS)) {
+        await MobileAds.instance.initialize();
+      }
+    } catch (e) {
+      debugPrint('Google Mobile Ads initialization skipped: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<StorageService>(
+      future: _storageFuture,
+      builder: (context, snapshot) {
+        final storageService = snapshot.data;
+        if (storageService == null) {
+          return const DevavaniSplash();
+        }
+
+        _startBackgroundInitialization();
+
+        return MultiProvider(
+          providers: [
+            Provider<StorageService>.value(value: storageService),
+            Provider<AudioPlayerService>.value(value: _audioPlayerService),
+            Provider<NotificationService>.value(value: _notificationService),
+            ChangeNotifierProvider<JaapProvider>(
+              create: (_) => JaapProvider(storageService, _audioPlayerService),
+            ),
+            ChangeNotifierProvider<AudioProvider>(
+              create: (_) => AudioProvider(_audioPlayerService, storageService),
+            ),
+            ChangeNotifierProvider<PanchangProvider>(
+              create: (_) =>
+                  PanchangProvider(initialLang: storageService.getLanguage()),
+            ),
+            ChangeNotifierProvider<SettingsProvider>(
+              create: (context) {
+                final settings = SettingsProvider(
+                  storageService,
+                  _notificationService,
+                );
+                settings.onLanguageChanged = (lang) {
+                  context.read<PanchangProvider>().setLanguage(lang);
+                };
+                return settings;
+              },
+            ),
+          ],
+          child: const DevavaniApp(),
+        );
+      },
+    );
+  }
+}
+
+class DevavaniSplash extends StatelessWidget {
+  const DevavaniSplash({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Color(0xFFFFF8F4),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFFD96510),
+            strokeWidth: 3,
           ),
         ),
-        ChangeNotifierProvider<SettingsProvider>(
-          create: (context) {
-            final settings = SettingsProvider(storageService, notificationService);
-            // Sync language changes to PanchangProvider without circular dependency
-            settings.onLanguageChanged = (lang) {
-              context.read<PanchangProvider>().setLanguage(lang);
-            };
-            return settings;
-          },
-        ),
-      ],
-      child: const DevavaniApp(),
-    ),
-  );
+      ),
+    );
+  }
 }
 
 /// Root Application Widget
@@ -141,8 +205,12 @@ class _SplashRouterState extends State<SplashRouter> {
       if (!mounted) return;
       final storage = context.read<StorageService>();
       final route = storage.hasCompletedOnboarding()
-          ? MaterialPageRoute<void>(builder: (_) => const MainNavigationScreen())
-          : MaterialPageRoute<void>(builder: (_) => const DeitySelectionScreen());
+          ? MaterialPageRoute<void>(
+              builder: (_) => const MainNavigationScreen(),
+            )
+          : MaterialPageRoute<void>(
+              builder: (_) => const DeitySelectionScreen(),
+            );
       Navigator.of(context).pushReplacement(route);
     });
   }

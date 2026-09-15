@@ -14,6 +14,7 @@ class NotificationService {
   static const int eveningReminderId = 1002;
   static const int testReminderId = 1003;
   static const int brahmaMuhurtaId = 101;
+  static const int _reminderDaysToSchedule = 7;
 
   static const String channelId = 'devavani_daily_reminders';
   static const String channelName = 'दैनिक प्रार्थना व आरती स्मरण';
@@ -31,7 +32,7 @@ class NotificationService {
   bool _isInitialized = false;
 
   NotificationService({bool enablePlatformNotifications = true})
-      : _enablePlatform = enablePlatformNotifications;
+    : _enablePlatform = enablePlatformNotifications;
 
   bool get _isPlatformAvailable {
     if (!_enablePlatform || kIsWeb) return false;
@@ -81,10 +82,10 @@ class NotificationService {
 
       const DarwinInitializationSettings iosSettings =
           DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-      );
+            requestAlertPermission: true,
+            requestBadgePermission: true,
+            requestSoundPermission: true,
+          );
 
       const InitializationSettings initSettings = InitializationSettings(
         android: androidSettings,
@@ -92,7 +93,7 @@ class NotificationService {
       );
 
       await _notificationsPlugin.initialize(
-        initSettings,
+        settings: initSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
           debugPrint('Devavani Notification clicked: ${response.payload}');
           _handleNotificationTap(response.payload);
@@ -117,13 +118,14 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     if (!_isPlatformAvailable) return true;
     try {
-      final androidImplementation =
-          _notificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final androidImplementation = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
 
       if (androidImplementation != null) {
-        final bool? granted =
-            await androidImplementation.requestNotificationsPermission();
+        final bool? granted = await androidImplementation
+            .requestNotificationsPermission();
         return granted ?? true;
       }
       return true;
@@ -186,32 +188,38 @@ class NotificationService {
           case 'hanuman_jayanti':
             return (
               title: title,
-              body: '🚩 आज हनुमान जयन्ती हो। सङ्कटमोचन हनुमान जीको आरती र चालीसा पाठ गरौँ। 🙏',
+              body:
+                  '🚩 आज हनुमान जयन्ती हो। सङ्कटमोचन हनुमान जीको आरती र चालीसा पाठ गरौँ। 🙏',
             );
           case 'ganesh_chaturthi':
             return (
               title: title,
-              body: '🐘 आज गणेश चतुर्थी हो। विघ्नहर्ता गणपति बप्पाको आरती गरौँ। 🙏',
+              body:
+                  '🐘 आज गणेश चतुर्थी हो। विघ्नहर्ता गणपति बप्पाको आरती गरौँ। 🙏',
             );
           case 'navratri':
             return (
               title: title,
-              body: '🌺 आज पावन नवरात्रि हो। माँ दुर्गाको आरती र स्तुति गरौँ। 🙏',
+              body:
+                  '🌺 आज पावन नवरात्रि हो। माँ दुर्गाको आरती र स्तुति गरौँ। 🙏',
             );
           case 'janmashtami':
             return (
               title: title,
-              body: '🦚 आज श्रीकृष्ण जन्माष्टमी हो। भगवान श्री कृष्णको आरती गरौँ। 🙏',
+              body:
+                  '🦚 आज श्रीकृष्ण जन्माष्टमी हो। भगवान श्री कृष्णको आरती गरौँ। 🙏',
             );
           case 'ram_navami':
             return (
               title: title,
-              body: '🏹 आज पावन रामनवमी हो। प्रभु श्री रामको आरती र वन्दना गरौँ। 🙏',
+              body:
+                  '🏹 आज पावन रामनवमी हो। प्रभु श्री रामको आरती र वन्दना गरौँ। 🙏',
             );
           case 'diwali':
             return (
               title: title,
-              body: '🪔 आज दीपावलीको पावन पर्व हो। माता लक्ष्मी र श्री रामको आरती गरौँ। 🙏',
+              body:
+                  '🪔 आज दीपावलीको पावन पर्व हो। माता लक्ष्मी र श्री रामको आरती गरौँ। 🙏',
             );
           default:
             return (
@@ -235,37 +243,44 @@ class NotificationService {
           case 'hanuman_jayanti':
             return (
               title: title,
-              body: '🚩 Today is Hanuman Jayanti. Recite Hanuman Chalisa and perform Aarti. 🙏',
+              body:
+                  '🚩 Today is Hanuman Jayanti. Recite Hanuman Chalisa and perform Aarti. 🙏',
             );
           case 'ganesh_chaturthi':
             return (
               title: title,
-              body: '🐘 Today is Ganesh Chaturthi. Worship Lord Ganesha with holy Aarti. 🙏',
+              body:
+                  '🐘 Today is Ganesh Chaturthi. Worship Lord Ganesha with holy Aarti. 🙏',
             );
           case 'navratri':
             return (
               title: title,
-              body: '🌺 Today is auspicious Navratri. Offer prayers and Maa Durga\'s Aarti. 🙏',
+              body:
+                  '🌺 Today is auspicious Navratri. Offer prayers and Maa Durga\'s Aarti. 🙏',
             );
           case 'janmashtami':
             return (
               title: title,
-              body: '🦚 Today is Janmashtami. Celebrate Lord Krishna\'s divine Aarti. 🙏',
+              body:
+                  '🦚 Today is Janmashtami. Celebrate Lord Krishna\'s divine Aarti. 🙏',
             );
           case 'ram_navami':
             return (
               title: title,
-              body: '🏹 Today is Ram Navami. Recite Lord Ram\'s sacred prayer and Aarti. 🙏',
+              body:
+                  '🏹 Today is Ram Navami. Recite Lord Ram\'s sacred prayer and Aarti. 🙏',
             );
           case 'diwali':
             return (
               title: title,
-              body: '🪔 Today is Diwali. Light holy lamps and join the divine evening Aarti. 🙏',
+              body:
+                  '🪔 Today is Diwali. Light holy lamps and join the divine evening Aarti. 🙏',
             );
           default:
             return (
               title: title,
-              body: '🙏 Today is a sacred festival. Offer devotion and join the Aarti. ॐ',
+              body:
+                  '🙏 Today is a sacred festival. Offer devotion and join the Aarti. ॐ',
             );
         }
 
@@ -285,42 +300,50 @@ class NotificationService {
           case 'hanuman_jayanti':
             return (
               title: title,
-              body: '🚩 आज हनुमान जयंती है। संकटमोचन हनुमान जी की आरती व चालीसा का पाठ करें। 🙏',
+              body:
+                  '🚩 आज हनुमान जयंती है। संकटमोचन हनुमान जी की आरती व चालीसा का पाठ करें। 🙏',
             );
           case 'ganesh_chaturthi':
             return (
               title: title,
-              body: '🐘 आज गणेश चतुर्थी है। विघ्नहर्ता गणपति बप्पा की आरती करें। 🙏',
+              body:
+                  '🐘 आज गणेश चतुर्थी है। विघ्नहर्ता गणपति बप्पा की आरती करें। 🙏',
             );
           case 'navratri':
             return (
               title: title,
-              body: '🌺 आज पावन नवरात्रि है। माँ भगवती दुर्गा जी की आरती व स्तुति करें। 🙏',
+              body:
+                  '🌺 आज पावन नवरात्रि है। माँ भगवती दुर्गा जी की आरती व स्तुति करें। 🙏',
             );
           case 'janmashtami':
             return (
               title: title,
-              body: '🦚 आज श्रीकृष्ण जन्माष्टमी है। बाल गोपाल भगवान श्री कृष्ण की आरती करें। 🙏',
+              body:
+                  '🦚 आज श्रीकृष्ण जन्माष्टमी है। बाल गोपाल भगवान श्री कृष्ण की आरती करें। 🙏',
             );
           case 'ram_navami':
             return (
               title: title,
-              body: '🏹 आज पावन रामनवमी है। मर्यादा पुरुषोत्तम प्रभु श्री राम की आरती करें। 🙏',
+              body:
+                  '🏹 आज पावन रामनवमी है। मर्यादा पुरुषोत्तम प्रभु श्री राम की आरती करें। 🙏',
             );
           case 'diwali':
             return (
               title: title,
-              body: '🪔 आज दीपावली का पावन महापर्व है। माता लक्ष्मी व प्रभु श्री राम की आरती करें। 🙏',
+              body:
+                  '🪔 आज दीपावली का पावन महापर्व है। माता लक्ष्मी व प्रभु श्री राम की आरती करें। 🙏',
             );
           case 'makar_sankranti':
             return (
               title: title,
-              body: '☀️ आज मकर संक्रांति है। सूर्य देव व प्रभु श्री राम का ध्यान और आरती करें। 🙏',
+              body:
+                  '☀️ आज मकर संक्रांति है। सूर्य देव व प्रभु श्री राम का ध्यान और आरती करें। 🙏',
             );
           default:
             return (
               title: title,
-              body: '🙏 आज पावन धार्मिक पर्व है। आइए श्रद्धाभाव से आज की आरती करें। ॐ',
+              body:
+                  '🙏 आज पावन धार्मिक पर्व है। आइए श्रद्धाभाव से आज की आरती करें। ॐ',
             );
         }
     }
@@ -354,7 +377,8 @@ class NotificationService {
           case DateTime.wednesday:
             return (
               title: title,
-              body: '🐘 आज बुधबार हो। विघ्नहर्ता श्री गणेश जीको आरती र वन्दना गरौँ। 🙏',
+              body:
+                  '🐘 आज बुधबार हो। विघ्नहर्ता श्री गणेश जीको आरती र वन्दना गरौँ। 🙏',
             );
           case DateTime.thursday:
             return (
@@ -369,13 +393,15 @@ class NotificationService {
           case DateTime.saturday:
             return (
               title: title,
-              body: '🪐 आज शनिबार हो। सङ्कटमोचन हनुमान जी र शनि देवको आरती गरौँ। 🙏',
+              body:
+                  '🪐 आज शनिबार हो। सङ्कटमोचन हनुमान जी र शनि देवको आरती गरौँ। 🙏',
             );
           case DateTime.sunday:
           default:
             return (
               title: title,
-              body: '☀️ आज आइतबार हो। भगवान सूर्य देव र प्रभु श्री रामको स्तुति गरौँ। 🙏',
+              body:
+                  '☀️ आज आइतबार हो। भगवान सूर्य देव र प्रभु श्री रामको स्तुति गरौँ। 🙏',
             );
         }
 
@@ -401,28 +427,33 @@ class NotificationService {
           case DateTime.wednesday:
             return (
               title: title,
-              body: '🐘 Today is Wednesday. Recite Lord Ganesha\'s Aarti for wisdom & peace. 🙏',
+              body:
+                  '🐘 Today is Wednesday. Recite Lord Ganesha\'s Aarti for wisdom & peace. 🙏',
             );
           case DateTime.thursday:
             return (
               title: title,
-              body: '🪷 Today is Thursday. Offer heartfelt Aarti to Lord Vishnu. 🙏',
+              body:
+                  '🪷 Today is Thursday. Offer heartfelt Aarti to Lord Vishnu. 🙏',
             );
           case DateTime.friday:
             return (
               title: title,
-              body: '🌺 Today is Friday. Offer Aarti and prayers to Goddess Durga. 🙏',
+              body:
+                  '🌺 Today is Friday. Offer Aarti and prayers to Goddess Durga. 🙏',
             );
           case DateTime.saturday:
             return (
               title: title,
-              body: '🪐 Today is Saturday. Seek blessings with Hanuman Ji\'s & Shani Dev\'s Aarti. 🙏',
+              body:
+                  '🪐 Today is Saturday. Seek blessings with Hanuman Ji\'s & Shani Dev\'s Aarti. 🙏',
             );
           case DateTime.sunday:
           default:
             return (
               title: title,
-              body: '☀️ Today is Sunday. Praise Lord Surya and Lord Ram with holy Aarti. 🙏',
+              body:
+                  '☀️ Today is Sunday. Praise Lord Surya and Lord Ram with holy Aarti. 🙏',
             );
         }
 
@@ -490,13 +521,13 @@ class NotificationService {
   // Scheduling Logic
   // ─────────────────────────────────────────────────────────────────────────
 
-  /// Schedules daily morning reminder at specified [hour] and [minute].
-  Future<void> scheduleDailyMorningReminder({
+  /// Schedules morning reminders for the next seven days.
+  Future<bool> scheduleDailyMorningReminder({
     required int hour,
     required int minute,
     required String lang,
   }) async {
-    await _scheduleDailyZoned(
+    return _scheduleDailyZoned(
       id: morningReminderId,
       hour: hour,
       minute: minute,
@@ -505,13 +536,13 @@ class NotificationService {
     );
   }
 
-  /// Schedules daily evening reminder at specified [hour] and [minute].
-  Future<void> scheduleDailyEveningReminder({
+  /// Schedules evening reminders for the next seven days.
+  Future<bool> scheduleDailyEveningReminder({
     required int hour,
     required int minute,
     required String lang,
   }) async {
-    await _scheduleDailyZoned(
+    return _scheduleDailyZoned(
       id: eveningReminderId,
       hour: hour,
       minute: minute,
@@ -520,30 +551,27 @@ class NotificationService {
     );
   }
 
-  /// Internal daily zoned scheduling using timezone
-  Future<void> _scheduleDailyZoned({
+  /// Schedules ordinary one-time notifications instead of a repeating alarm.
+  /// This is more compatible with Android vendor battery and alarm managers.
+  Future<bool> _scheduleDailyZoned({
     required int id,
     required int hour,
     required int minute,
     required bool isEvening,
     required String lang,
   }) async {
-    final scheduledDate = _nextInstanceOfTime(hour, minute);
-    final msg = getContextualReminder(
-      date: scheduledDate,
-      isEvening: isEvening,
-      lang: lang,
-    );
-
     if (!_isPlatformAvailable) {
       _testPending.removeWhere((p) => p.id == id);
-      _testPending.add(PendingNotificationRequest(
-        id,
-        msg.title,
-        msg.body,
-        aartiPayload,
-      ));
-      return;
+      final scheduledDate = _nextInstanceOfTime(hour, minute);
+      final msg = getContextualReminder(
+        date: scheduledDate,
+        isEvening: isEvening,
+        lang: lang,
+      );
+      _testPending.add(
+        PendingNotificationRequest(id, msg.title, msg.body, aartiPayload),
+      );
+      return true;
     }
 
     try {
@@ -569,25 +597,65 @@ class NotificationService {
         android: androidDetails,
         iOS: iosDetails,
       );
+      final scheduleMode = await _getScheduleMode();
 
-      await _notificationsPlugin.zonedSchedule(
-        id,
-        msg.title,
-        msg.body,
-        scheduledDate,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: aartiPayload,
-      );
+      await _cancelReminderSeries(id);
+      final firstDate = _nextInstanceOfTime(hour, minute);
+
+      for (var day = 0; day < _reminderDaysToSchedule; day++) {
+        final scheduledDate = firstDate.add(Duration(days: day));
+        final notificationId = id + (day * 10);
+        final msg = getContextualReminder(
+          date: scheduledDate,
+          isEvening: isEvening,
+          lang: lang,
+        );
+
+        await _notificationsPlugin.zonedSchedule(
+          id: notificationId,
+          title: msg.title,
+          body: msg.body,
+          scheduledDate: scheduledDate,
+          notificationDetails: details,
+          androidScheduleMode: scheduleMode,
+          payload: aartiPayload,
+        );
+      }
 
       debugPrint(
-        'Devavani: Scheduled daily reminder ($id) at ${scheduledDate.hour}:${scheduledDate.minute}',
+        'Devavani: Scheduled $_reminderDaysToSchedule reminders for $id at $hour:$minute',
       );
+      return true;
     } catch (e) {
       debugPrint('NotificationService _scheduleDailyZoned error: $e');
+      return false;
+    }
+  }
+
+  Future<AndroidScheduleMode> _getScheduleMode() async {
+    final androidImplementation = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (androidImplementation == null) {
+      return AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+
+    try {
+      final canScheduleExact = await androidImplementation
+          .canScheduleExactNotifications();
+      return canScheduleExact == true
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle;
+    } catch (e) {
+      debugPrint('Devavani: Exact alarm check unavailable: $e');
+      return AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+  }
+
+  Future<void> _cancelReminderSeries(int baseId) async {
+    for (var day = 0; day < _reminderDaysToSchedule; day++) {
+      await _notificationsPlugin.cancel(id: baseId + (day * 10));
     }
   }
 
@@ -633,7 +701,7 @@ class NotificationService {
       return;
     }
     try {
-      await _notificationsPlugin.cancel(morningReminderId);
+      await _cancelReminderSeries(morningReminderId);
       debugPrint('Devavani: Cancelled morning reminder');
     } catch (e) {
       debugPrint('Error cancelling morning reminder: $e');
@@ -647,7 +715,7 @@ class NotificationService {
       return;
     }
     try {
-      await _notificationsPlugin.cancel(eveningReminderId);
+      await _cancelReminderSeries(eveningReminderId);
       debugPrint('Devavani: Cancelled evening reminder');
     } catch (e) {
       debugPrint('Error cancelling evening reminder: $e');
@@ -661,8 +729,8 @@ class NotificationService {
       return;
     }
     try {
-      await _notificationsPlugin.cancel(morningReminderId);
-      await _notificationsPlugin.cancel(eveningReminderId);
+      await _cancelReminderSeries(morningReminderId);
+      await _cancelReminderSeries(eveningReminderId);
     } catch (e) {
       debugPrint('Error cancelling all reminders: $e');
     }
@@ -714,10 +782,10 @@ class NotificationService {
       );
 
       await _notificationsPlugin.show(
-        testReminderId,
-        '🔔 ${msg.title}',
-        msg.body,
-        details,
+        id: testReminderId,
+        title: '🔔 ${msg.title}',
+        body: msg.body,
+        notificationDetails: details,
         payload: aartiPayload,
       );
     } catch (e) {
@@ -733,22 +801,23 @@ class NotificationService {
     try {
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-        'devavani_prayers_channel',
-        'दैनिक प्रार्थना व ब्रह्म मुहूर्त',
-        channelDescription: 'दैनिक आरती, जाप और पंचांग स्मरण सूचनाएं',
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+            'devavani_prayers_channel',
+            'दैनिक प्रार्थना व ब्रह्म मुहूर्त',
+            channelDescription: 'दैनिक आरती, जाप और पंचांग स्मरण सूचनाएं',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          );
+
+      const NotificationDetails platformDetails = NotificationDetails(
+        android: androidDetails,
       );
 
-      const NotificationDetails platformDetails =
-          NotificationDetails(android: androidDetails);
-
       await _notificationsPlugin.show(
-        brahmaMuhurtaId,
-        title,
-        body,
-        platformDetails,
+        id: brahmaMuhurtaId,
+        title: title,
+        body: body,
+        notificationDetails: platformDetails,
         payload: aartiPayload,
       );
     } catch (e) {

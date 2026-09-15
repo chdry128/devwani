@@ -9,6 +9,7 @@ import '../services/haptic_service.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/digital_pushpa_card.dart';
 import '../widgets/dos_and_donts_card.dart';
+import '../widgets/god_image.dart';
 import 'settings_screen.dart';
 
 /// More Screen featuring "God of the Day" (आज के देवता: श्री गणेश जी)
@@ -49,9 +50,7 @@ class _MoreScreenState extends State<MoreScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppTopBar(
-        title: AppStrings.get('moreTitle', lang: lang),
-      ),
+      appBar: AppTopBar(title: AppStrings.get('moreTitle', lang: lang)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 14.0),
@@ -85,9 +84,7 @@ class _MoreScreenState extends State<MoreScreen> {
               const SizedBox(height: 18),
 
               // 5. Digital Pushpa Arpan Card
-              DigitalPushpaCard(
-                deityName: deity.name,
-              ),
+              DigitalPushpaCard(deityName: deity.name),
               const SizedBox(height: 24),
 
               // 6. Preferences & Settings Card (Language, Brahma Muhurta)
@@ -125,19 +122,10 @@ class _MoreScreenState extends State<MoreScreen> {
             children: [
               AspectRatio(
                 aspectRatio: 4 / 3,
-                child: Image.asset(
-                  deity.imagePath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.primaryFixed,
-                    child: const Center(
-                      child: Icon(
-                        Icons.temple_hindu_rounded,
-                        size: 60,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
+                child: GodImage(
+                  godId: deity.id,
+                  fallbackPath: deity.imagePath,
+                  iconSize: 60,
                 ),
               ),
               Positioned.fill(
@@ -219,11 +207,7 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   /// Prominent Mantra Card
-  Widget _buildMantraCard(
-    BuildContext context,
-    DeityOfDay deity,
-    String lang,
-  ) {
+  Widget _buildMantraCard(BuildContext context, DeityOfDay deity, String lang) {
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
@@ -263,7 +247,10 @@ class _MoreScreenState extends State<MoreScreen> {
 
           // Inner Sacred Mantra Disc
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(20.0),
@@ -322,10 +309,7 @@ class _MoreScreenState extends State<MoreScreen> {
               _isPlayingMantra
                   ? AppStrings.get('listeningMantra', lang: lang)
                   : AppStrings.get('listenMantraChant', lang: lang),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -393,10 +377,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          const Divider(
-            height: 1,
-            color: AppColors.surfaceContainer,
-          ),
+          const Divider(height: 1, color: AppColors.surfaceContainer),
           const SizedBox(height: 16),
 
           // Brahma Muhurta Reminder Switch
@@ -437,10 +418,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(
-            height: 1,
-            color: AppColors.surfaceContainer,
-          ),
+          const Divider(height: 1, color: AppColors.surfaceContainer),
           const SizedBox(height: 14),
 
           // Offline Ready Assurance
@@ -469,11 +447,9 @@ class _MoreScreenState extends State<MoreScreen> {
           // Open Full Settings Screen Button
           ElevatedButton.icon(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.surfaceContainerHigh,

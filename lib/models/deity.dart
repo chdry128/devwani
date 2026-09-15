@@ -13,6 +13,7 @@ import '../services/today_service.dart';
 
 /// @deprecated Use [GodModel] from 'god_model.dart' instead.
 class DeityOfDay {
+  final String id;
   final String name;
   final String title;
   final String daySpecial;
@@ -25,6 +26,7 @@ class DeityOfDay {
   final List<String> donts;
 
   const DeityOfDay({
+    required this.id,
     required this.name,
     required this.title,
     required this.daySpecial,
@@ -40,12 +42,18 @@ class DeityOfDay {
   /// Creates a [DeityOfDay] from the new data layer for a given language.
   ///
   /// This bridges old screens to the new [TodayService] + [GodModel] system.
-  static DeityOfDay fromToday({String lang = 'hi', List<String> preferredGodIds = const []}) {
+  static DeityOfDay fromToday({
+    String lang = 'hi',
+    List<String> preferredGodIds = const [],
+  }) {
     final result = TodayService.getToday(preferredGodIds: preferredGodIds);
     final god = result.god;
-    final guidance = TodayService.getDailyGuidance(preferredGodIds: preferredGodIds);
+    final guidance = TodayService.getDailyGuidance(
+      preferredGodIds: preferredGodIds,
+    );
 
     return DeityOfDay(
+      id: god.id,
       name: god.name.forLang(lang),
       title: 'आज के देवता: ${god.name.forLang(lang)}',
       daySpecial: result.badge.forLang(lang),
@@ -54,8 +62,8 @@ class DeityOfDay {
       mantraTitle: lang == 'en'
           ? '${god.name.forLang(lang)} Sacred Mantra'
           : (god.id == 'ganesha'
-              ? 'सिद्ध गणेश महामंत्र'
-              : '${god.name.forLang(lang)} महामंत्र'),
+                ? 'सिद्ध गणेश महामंत्र'
+                : '${god.name.forLang(lang)} महामंत्र'),
       mantraText: god.mantra.forLang(lang),
       mantraMeaning: god.mantraMeaning.forLang(lang),
       dos: guidance.dos.map((d) => d.forLang(lang)).toList(),
@@ -65,6 +73,7 @@ class DeityOfDay {
 
   /// The old static [ganesha] constant — now generated from the new data layer.
   static final DeityOfDay ganesha = DeityOfDay(
+    id: 'ganesha',
     name: 'श्री गणेश जी',
     title: 'आज के देवता: श्री गणेश जी',
     daySpecial: 'बुधवार विशेष • विघ्नहर्ता',

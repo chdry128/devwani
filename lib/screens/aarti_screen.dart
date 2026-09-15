@@ -25,6 +25,7 @@ import '../services/haptic_service.dart';
 import '../utils/devanagari_helper.dart';
 import '../widgets/aarti_lyrics_scroller.dart';
 import '../widgets/app_top_bar.dart';
+import '../widgets/god_image.dart';
 
 class AartiScreen extends StatefulWidget {
   final bool showBackButton;
@@ -151,19 +152,10 @@ class _AartiScreenState extends State<AartiScreen> {
               children: [
                 AspectRatio(
                   aspectRatio: 4 / 3,
-                  child: Image.asset(
-                    aarti.imagePath,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppColors.primaryFixed,
-                      child: const Center(
-                        child: Icon(
-                          Icons.temple_hindu_rounded,
-                          size: 64,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
+                  child: GodImage(
+                    godId: aarti.relatedGodId,
+                    fallbackPath: aarti.imagePath,
+                    iconSize: 64,
                   ),
                 ),
 
@@ -403,10 +395,7 @@ class _AartiScreenState extends State<AartiScreen> {
               IconButton(
                 iconSize: 32,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 62,
-                  minHeight: 62,
-                ),
+                constraints: const BoxConstraints(minWidth: 62, minHeight: 62),
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.surfaceContainer,
                   foregroundColor: AppColors.primary,
@@ -447,10 +436,7 @@ class _AartiScreenState extends State<AartiScreen> {
                       offset: const Offset(0, 8),
                     ),
                   ],
-                  border: Border.all(
-                    color: AppColors.primaryFixed,
-                    width: 4.0,
-                  ),
+                  border: Border.all(color: AppColors.primaryFixed, width: 4.0),
                 ),
                 child: IconButton(
                   iconSize: 46,
@@ -470,10 +456,7 @@ class _AartiScreenState extends State<AartiScreen> {
               IconButton(
                 iconSize: 32,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 62,
-                  minHeight: 62,
-                ),
+                constraints: const BoxConstraints(minWidth: 62, minHeight: 62),
                 style: IconButton.styleFrom(
                   backgroundColor: AppColors.surfaceContainer,
                   foregroundColor: AppColors.primary,
@@ -510,8 +493,9 @@ class _AartiScreenState extends State<AartiScreen> {
               backgroundColor: audio.isLooping
                   ? AppColors.primaryContainer
                   : AppColors.surfaceContainerLow,
-              foregroundColor:
-                  audio.isLooping ? Colors.white : AppColors.primary,
+              foregroundColor: audio.isLooping
+                  ? Colors.white
+                  : AppColors.primary,
               minimumSize: const Size.fromHeight(56),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(99),
@@ -528,10 +512,7 @@ class _AartiScreenState extends State<AartiScreen> {
             ),
             label: Text(
               AppStrings.get('loopAarti', lang: lang),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -584,7 +565,10 @@ class _AartiScreenState extends State<AartiScreen> {
       builder: (ctx) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18.0,
+              vertical: 20.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -641,7 +625,9 @@ class _AartiScreenState extends State<AartiScreen> {
                             border: Border.all(
                               color: isSelected
                                   ? AppColors.primary
-                                  : AppColors.outlineVariant.withValues(alpha: 0.4),
+                                  : AppColors.outlineVariant.withValues(
+                                      alpha: 0.4,
+                                    ),
                               width: isSelected ? 2.0 : 1.0,
                             ),
                           ),

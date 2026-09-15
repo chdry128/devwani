@@ -17,8 +17,8 @@ class AssetPaths {
   static const String hanumanJi = 'assets/images/hanuman_ji.png';
   static const String shivaJi = 'assets/images/shiva_ji.png';
   static const String ganeshaJi = 'assets/images/ganesha_ji.png';
-  static const String durgaMaa = 'assets/images/durga_maa.png';
-  static const String krishnaJi = 'assets/images/krishna_ji.png';
+  static const String durgaMaa = 'assets/images/durga_ji.png';
+  static const String krishnaJi = 'assets/images/krishna_ji.jpg';
   static const String ramJi = 'assets/images/ram_ji.png';
 
   // ─────────────────────────────────────────────────────────────────────────

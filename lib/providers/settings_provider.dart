@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 
@@ -38,8 +38,10 @@ class SettingsProvider extends ChangeNotifier {
     _eveningHour = _storageService.getEveningReminderHour();
     _eveningMinute = _storageService.getEveningReminderMinute();
 
-    // Re-schedule active reminders in background if already enabled
-    _rescheduleActiveReminders();
+    // Defer platform work until the first frame so startup remains responsive.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _rescheduleActiveReminders();
+    });
   }
 
   String get language => _language;
@@ -95,6 +97,9 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     if (enabled) {
+      // Ensure notification service is initialized before requesting platform
+      // permissions or scheduling the reminder.
+      await _notificationService.init();
       final granted = await _notificationService.requestPermissions();
       if (!granted) {
         _morningReminderEnabled = false;
@@ -103,16 +108,17 @@ class SettingsProvider extends ChangeNotifier {
         return false;
       }
 
-      // Ensure notification service is initialized
-      await _notificationService.init();
-
-      _morningReminderEnabled = true;
-      await _storageService.saveMorningReminderEnabled(true);
-      await _notificationService.scheduleDailyMorningReminder(
+      final scheduled = await _notificationService.scheduleDailyMorningReminder(
         hour: _morningHour,
         minute: _morningMinute,
         lang: _language,
       );
+      _morningReminderEnabled = scheduled;
+      await _storageService.saveMorningReminderEnabled(scheduled);
+      if (!scheduled) {
+        notifyListeners();
+        return false;
+      }
     } else {
       _morningReminderEnabled = false;
       await _storageService.saveMorningReminderEnabled(false);
@@ -144,6 +150,9 @@ class SettingsProvider extends ChangeNotifier {
     }
 
     if (enabled) {
+      // Ensure notification service is initialized before requesting platform
+      // permissions or scheduling the reminder.
+      await _notificationService.init();
       final granted = await _notificationService.requestPermissions();
       if (!granted) {
         _eveningReminderEnabled = false;
@@ -152,16 +161,17 @@ class SettingsProvider extends ChangeNotifier {
         return false;
       }
 
-      // Ensure notification service is initialized
-      await _notificationService.init();
-
-      _eveningReminderEnabled = true;
-      await _storageService.saveEveningReminderEnabled(true);
-      await _notificationService.scheduleDailyEveningReminder(
+      final scheduled = await _notificationService.scheduleDailyEveningReminder(
         hour: _eveningHour,
         minute: _eveningMinute,
         lang: _language,
       );
+      _eveningReminderEnabled = scheduled;
+      await _storageService.saveEveningReminderEnabled(scheduled);
+      if (!scheduled) {
+        notifyListeners();
+        return false;
+      }
     } else {
       _eveningReminderEnabled = false;
       await _storageService.saveEveningReminderEnabled(false);

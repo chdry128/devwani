@@ -15,11 +15,11 @@ dependencies:
   shared_preferences: ^2.3.2
   just_audio: ^0.9.40
   audio_service: ^0.18.16
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^22.3.1
   google_mobile_ads: ^9.1.0
   intl: ^0.19.0
   tithi_engine: ^5.2.0
-  timezone: ^0.10.1
+  timezone: ^0.11.1
 
 dev_dependencies:
   flutter_test:
